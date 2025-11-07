@@ -102,7 +102,7 @@ const activities = [
   },
   {
     "_id": 10,
-    "img_name": "images/real_photo.jpeg",
+    "img_name": "images/fireworks.jpeg",
     "name": "Evening Fireworks",
     "description": "End your day with a spectacular fireworks display lighting up the night sky over the festival grounds.",
     "category": "Entertainment",
