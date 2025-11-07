@@ -43,7 +43,7 @@ const activities = [
   {
     "_id": 4,
     "img_name": "images/ken.jpeg",
-    "name": "Carnival Rides",
+    "name": "Picture Perfect Moments",
     "description": "Capture picture perfect moments on thrilling carnival rides including the Ferris wheel, roller coasters, and traditional fair attractions.",
     "category": "Attractions",
     "price_range": "$5-10 per ride",
@@ -53,7 +53,7 @@ const activities = [
   {
     "_id": 5,
     "img_name": "images/parade.jpg",
-    "name": "Opening Day Parade",
+    "name": "Traditional Veterans Parade",
     "description": "Witness the spectacular traditional veterans parade featuring marching bands, traditional costumes, and horse-drawn carriages.",
     "category": "Events",
     "price_range": "Free",
@@ -63,7 +63,7 @@ const activities = [
   {
     "_id": 6,
     "img_name": "images/threepeople.jpeg",
-    "name": "Traditional Costume Contest",
+    "name": "Generational Fun",
     "description": "Experience generational fun as families show off their dirndl or lederhosen in the traditional costume contest with prizes for the best dressed.",
     "category": "Events",
     "price_range": "Free to enter",
@@ -73,7 +73,7 @@ const activities = [
   {
     "_id": 7,
     "img_name": "images/emil.jpg",
-    "name": "Traditional Games",
+    "name": "Long Lasting Family Traditions",
     "description": "Participate in long lasting family traditions through traditional German games including stein holding contests, barrel rolling, and more.",
     "category": "Activities",
     "price_range": "$3-8",
@@ -83,9 +83,9 @@ const activities = [
   {
     "_id": 8,
     "img_name": "images/don.jpeg",
-    "name": "Artisan Crafts Market",
+    "name": "Live German Music",
     "description": "Browse and purchase handmade crafts while enjoying live German music, traditional German souvenirs, and unique festival memorabilia.",
-    "category": "Shopping",
+    "category": "Entertainment",
     "price_range": "Varies",
     "popularity": "Popular",
     "dietary_options": "N/A"
@@ -93,9 +93,9 @@ const activities = [
   {
     "_id": 9,
     "img_name": "images/phil.jpeg",
-    "name": "Children's Activities",
+    "name": "Authentic German Beer",
     "description": "Family-friendly activities including face painting, puppet shows, and kid-friendly rides, all while parents enjoy authentic German beer.",
-    "category": "Family",
+    "category": "Entertainment",
     "price_range": "$2-5",
     "popularity": "Popular",
     "dietary_options": "N/A"
