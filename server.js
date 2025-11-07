@@ -12,7 +12,7 @@ app.use(express.static('public'));
 const activities = [
   {
     "_id": 1,
-    "img_name": "food.jpeg",
+    "img_name": "images/food.jpeg",
     "name": "Traditional German Food",
     "description": "Enjoy authentic German cuisine including bratwurst, sauerkraut, pretzels, and schnitzel at various food stalls throughout the festival.",
     "category": "Food & Dining",
@@ -22,7 +22,7 @@ const activities = [
   },
   {
     "_id": 2,
-    "img_name": "beer-tent.jpeg",
+    "img_name": "images/hofbrau.png",
     "name": "Beer Tent Experience",
     "description": "Experience the iconic Oktoberfest beer tents with live music, traditional German beer, and festive atmosphere.",
     "category": "Entertainment",
@@ -32,7 +32,7 @@ const activities = [
   },
   {
     "_id": 3,
-    "img_name": "music.jpeg",
+    "img_name": "images/people.jpeg",
     "name": "Live Music & Dancing",
     "description": "Dance to traditional German music performed by live bands in the beer tents and main stage areas.",
     "category": "Entertainment",
@@ -42,7 +42,7 @@ const activities = [
   },
   {
     "_id": 4,
-    "img_name": "rides.jpeg",
+    "img_name": "images/packed.jpg",
     "name": "Carnival Rides",
     "description": "Enjoy thrilling carnival rides including the Ferris wheel, roller coasters, and traditional fair attractions.",
     "category": "Attractions",
@@ -52,7 +52,7 @@ const activities = [
   },
   {
     "_id": 5,
-    "img_name": "parade.jpeg",
+    "img_name": "images/parade.jpg",
     "name": "Opening Day Parade",
     "description": "Witness the spectacular opening day parade featuring traditional costumes, marching bands, and horse-drawn carriages.",
     "category": "Events",
@@ -62,7 +62,7 @@ const activities = [
   },
   {
     "_id": 6,
-    "img_name": "costumes.jpeg",
+    "img_name": "images/threepeople.jpeg",
     "name": "Traditional Costume Contest",
     "description": "Show off your dirndl or lederhosen in the traditional costume contest with prizes for the best dressed.",
     "category": "Events",
@@ -72,7 +72,7 @@ const activities = [
   },
   {
     "_id": 7,
-    "img_name": "games.jpeg",
+    "img_name": "images/germanGame.jpeg",
     "name": "Traditional Games",
     "description": "Participate in traditional German games including stein holding contests, barrel rolling, and more.",
     "category": "Activities",
@@ -82,7 +82,7 @@ const activities = [
   },
   {
     "_id": 8,
-    "img_name": "crafts.jpeg",
+    "img_name": "images/fest.jpeg",
     "name": "Artisan Crafts Market",
     "description": "Browse and purchase handmade crafts, traditional German souvenirs, and unique festival memorabilia.",
     "category": "Shopping",
@@ -92,7 +92,7 @@ const activities = [
   },
   {
     "_id": 9,
-    "img_name": "kids.jpeg",
+    "img_name": "images/family.png",
     "name": "Children's Activities",
     "description": "Family-friendly activities including face painting, puppet shows, and kid-friendly rides.",
     "category": "Family",
@@ -102,7 +102,7 @@ const activities = [
   },
   {
     "_id": 10,
-    "img_name": "fireworks.jpeg",
+    "img_name": "images/real_photo.jpeg",
     "name": "Evening Fireworks",
     "description": "End your day with a spectacular fireworks display lighting up the night sky over the festival grounds.",
     "category": "Entertainment",
