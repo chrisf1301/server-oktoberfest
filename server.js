@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const Joi = require('joi');
+const fs = require('fs');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -10,10 +12,16 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
 
+// Ensure images directory exists
+const imagesDir = path.join(__dirname, 'public', 'images');
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir, { recursive: true });
+}
+
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './public/images/');
+    cb(null, imagesDir);
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
@@ -128,58 +136,81 @@ const activities = [
 
 // Routes
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Get all activities
 app.get('/api/activities', (req, res) => {
-  res.json(activities);
+  try {
+    res.json(activities);
+  } catch (error) {
+    console.error('Error in GET /api/activities:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
+  }
 });
 
 // Get a single activity by ID
 app.get('/api/activities/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const activity = activities.find(a => a._id === id);
-  
-  if (activity) {
-    res.json(activity);
-  } else {
-    res.status(404).json({ message: 'Activity not found' });
+  try {
+    const id = parseInt(req.params.id);
+    const activity = activities.find(a => a._id === id);
+    
+    if (activity) {
+      res.json(activity);
+    } else {
+      res.status(404).json({ message: 'Activity not found' });
+    }
+  } catch (error) {
+    console.error('Error in GET /api/activities/:id:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 });
 
 // Post a new activity
 app.post('/api/activities', upload.single('img'), (req, res) => {
-  const result = validateActivity(req.body);
+  try {
+    console.log('POST /api/activities - Request received');
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file);
+    
+    const result = validateActivity(req.body);
 
-  if (result.error) {
-    res.status(400).send(result.error.details[0].message);
-    return;
+    if (result.error) {
+      res.status(400).send(result.error.details[0].message);
+      return;
+    }
+
+    const activity = {
+      _id: activities.length > 0 ? Math.max(...activities.map(a => a._id)) + 1 : 1,
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      price_range: req.body.price_range,
+      popularity: req.body.popularity,
+      dietary_options: req.body.dietary_options || 'N/A',
+    };
+
+    // Adding image
+    if (req.file) {
+      console.log('File uploaded successfully:', req.file.filename);
+      activity.img_name = 'images/' + req.file.filename;
+    } else {
+      console.log('No file uploaded - req.file is:', req.file);
+    }
+
+    console.log('Activity created:', activity);
+    activities.push(activity);
+    res.status(200).send(activity);
+  } catch (error) {
+    console.error('Error in POST /api/activities:', error);
+    res.status(500).json({ error: 'Internal server error', message: error.message });
   }
-
-  const activity = {
-    _id: activities.length > 0 ? Math.max(...activities.map(a => a._id)) + 1 : 1,
-    name: req.body.name,
-    description: req.body.description,
-    category: req.body.category,
-    price_range: req.body.price_range,
-    popularity: req.body.popularity,
-    dietary_options: req.body.dietary_options || 'N/A',
-  };
-
-  // Adding image
-  if (req.file) {
-    activity.img_name = 'images/' + req.file.filename;
-  }
-
-  activities.push(activity);
-  res.status(200).send(activity);
 });
 
 // Validation schema
 const validateActivity = (activity) => {
   const schema = Joi.object({
-    _id: Joi.allow(''),
+    _id: Joi.any().optional(),
     name: Joi.string().min(3).required(),
     description: Joi.string().min(10).required(),
     category: Joi.string().required(),
@@ -192,10 +223,26 @@ const validateActivity = (activity) => {
   return schema.validate(activity);
 };
 
+// Error handling middleware (must be after all routes)
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    error: 'Internal server error', 
+    message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
+// 404 handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Oktoberfest server is running on http://localhost:${PORT}`);
 });
+
 
 
 
