@@ -16,7 +16,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "joi": "^17.11.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -30,4 +32,7 @@
   },
   "homepage": "https://github.com/chrisf1301/server-oktoberfest#readme"
 }
+
+
+
 
