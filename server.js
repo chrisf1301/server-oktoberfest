@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const Joi = require('joi');
-const fs = require('fs');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -12,23 +11,8 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
 
-// Ensure images directory exists
-const imagesDir = path.join(__dirname, 'public', 'images');
-if (!fs.existsSync(imagesDir)) {
-  fs.mkdirSync(imagesDir, { recursive: true });
-}
-
-// Multer configuration for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, imagesDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
+// Multer for form data without file uploads (for tickets)
+const uploadFormData = multer().none();
 
 // Oktoberfest activities data
 const activities = [
@@ -134,6 +118,9 @@ const activities = [
   }
 ];
 
+// Tickets data array
+let tickets = [];
+
 // Routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -166,61 +153,87 @@ app.get('/api/activities/:id', (req, res) => {
   }
 });
 
-// Post a new activity
-app.post('/api/activities', upload.single('img'), (req, res) => {
+// Get all tickets
+app.get('/api/tickets', (req, res) => {
   try {
-    console.log('POST /api/activities - Request received');
-    console.log('Request body:', req.body);
-    console.log('Request file:', req.file);
-    
-    const result = validateActivity(req.body);
-
-    if (result.error) {
-      res.status(400).send(result.error.details[0].message);
-      return;
-    }
-
-    const activity = {
-      _id: activities.length > 0 ? Math.max(...activities.map(a => a._id)) + 1 : 1,
-      name: req.body.name,
-      description: req.body.description,
-      category: req.body.category,
-      price_range: req.body.price_range,
-      popularity: req.body.popularity,
-      dietary_options: req.body.dietary_options || 'N/A',
-    };
-
-    // Adding image
-    if (req.file) {
-      console.log('File uploaded successfully:', req.file.filename);
-      activity.img_name = 'images/' + req.file.filename;
-    } else {
-      console.log('No file uploaded - req.file is:', req.file);
-    }
-
-    console.log('Activity created:', activity);
-    activities.push(activity);
-    res.status(200).send(activity);
+    res.json(tickets);
   } catch (error) {
-    console.error('Error in POST /api/activities:', error);
+    console.error('Error in GET /api/tickets:', error);
     res.status(500).json({ error: 'Internal server error', message: error.message });
   }
 });
 
-// Validation schema
-const validateActivity = (activity) => {
+// Post a new ticket order
+app.post('/api/tickets', uploadFormData, (req, res) => {
+  try {
+    const ticketData = {
+      ...req.body,
+      quantity: parseInt(req.body.quantity)
+    };
+    
+    const result = validateTicket(ticketData);
+
+    if (result.error) {
+      res.status(400).json({ 
+        success: false,
+        error: result.error.details[0].message 
+      });
+      return;
+    }
+
+    const ticket = {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      ticketType: req.body.ticketType,
+      quantity: parseInt(req.body.quantity),
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+
+    tickets.push(ticket);
+    res.status(201).json({
+      success: true,
+      ...ticket
+    });
+  } catch (error) {
+    console.error('Error in POST /api/tickets:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error', 
+      message: error.message 
+    });
+  }
+});
+
+// Validation schema for tickets
+const validateTicket = (ticket) => {
   const schema = Joi.object({
-    _id: Joi.any().optional(),
-    name: Joi.string().min(3).required(),
-    description: Joi.string().min(10).required(),
-    category: Joi.string().required(),
-    price_range: Joi.string().required(),
-    popularity: Joi.string().required(),
-    dietary_options: Joi.string().allow('N/A', ''),
-    img_name: Joi.string().allow(''),
+    name: Joi.string().min(2).required().messages({
+      'string.empty': 'Name is required',
+      'string.min': 'Name must be at least 2 characters long',
+    }),
+    email: Joi.string().email().required().messages({
+      'string.empty': 'Email is required',
+      'string.email': 'Email must be a valid email address',
+    }),
+    phone: Joi.string().min(10).required().messages({
+      'string.empty': 'Phone number is required',
+      'string.min': 'Phone number must be at least 10 characters long',
+    }),
+    ticketType: Joi.string().valid('General Admission', 'Family Pass', 'VIP Pass', 'Early Bird Special').required().messages({
+      'any.only': 'Ticket type must be one of: General Admission, Family Pass, VIP Pass, or Early Bird Special',
+      'any.required': 'Ticket type is required',
+    }),
+    quantity: Joi.number().integer().min(1).required().messages({
+      'number.base': 'Quantity must be a valid number',
+      'number.integer': 'Quantity must be a whole number',
+      'number.min': 'Quantity must be at least 1',
+      'any.required': 'Quantity is required',
+    }),
   });
 
-  return schema.validate(activity);
+  return schema.validate(ticket);
 };
 
 // Error handling middleware (must be after all routes)
