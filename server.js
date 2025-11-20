@@ -182,6 +182,7 @@ app.post('/api/tickets', uploadFormData, (req, res) => {
     }
 
     const ticket = {
+      id: tickets.length > 0 ? Math.max(...tickets.map(t => t.id)) + 1 : 1,
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
@@ -225,16 +226,100 @@ const validateTicket = (ticket) => {
       'any.only': 'Ticket type must be one of: General Admission, Family Pass, VIP Pass, or Early Bird Special',
       'any.required': 'Ticket type is required',
     }),
-    quantity: Joi.number().integer().min(1).required().messages({
+    quantity: Joi.number().integer().min(1).max(20).required().messages({
       'number.base': 'Quantity must be a valid number',
       'number.integer': 'Quantity must be a whole number',
       'number.min': 'Quantity must be at least 1',
+      'number.max': 'Quantity must be at most 20',
       'any.required': 'Quantity is required',
     }),
   });
 
   return schema.validate(ticket);
 };
+
+// Update an existing ticket order
+app.put('/api/tickets/:id', uploadFormData, (req, res) => {
+  try {
+    const ticketId = parseInt(req.params.id);
+    
+    const ticketData = {
+      ...req.body,
+      quantity: parseInt(req.body.quantity)
+    };
+    
+    const result = validateTicket(ticketData);
+
+    if (result.error) {
+      res.status(400).json({ 
+        success: false,
+        error: result.error.details[0].message 
+      });
+      return;
+    }
+
+    const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+
+    if (ticketIndex === -1) {
+      res.status(404).json({ 
+        success: false,
+        error: 'Ticket not found' 
+      });
+      return;
+    }
+
+    // Update the ticket
+    tickets[ticketIndex] = {
+      ...tickets[ticketIndex],
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      ticketType: req.body.ticketType,
+      quantity: parseInt(req.body.quantity),
+    };
+
+    res.status(200).json({
+      success: true,
+      ...tickets[ticketIndex]
+    });
+  } catch (error) {
+    console.error('Error in PUT /api/tickets/:id:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error', 
+      message: error.message 
+    });
+  }
+});
+
+// Delete a ticket order
+app.delete('/api/tickets/:id', (req, res) => {
+  try {
+    const ticketId = parseInt(req.params.id);
+    const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+
+    if (ticketIndex === -1) {
+      res.status(404).json({ 
+        success: false,
+        error: 'Ticket not found' 
+      });
+      return;
+    }
+
+    tickets.splice(ticketIndex, 1);
+    res.status(200).json({ 
+      success: true,
+      message: 'Ticket deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Error in DELETE /api/tickets/:id:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error', 
+      message: error.message 
+    });
+  }
+});
 
 // Error handling middleware (must be after all routes)
 app.use((err, req, res, next) => {
@@ -255,6 +340,7 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`Oktoberfest server is running on http://localhost:${PORT}`);
 });
+
 
 
 
