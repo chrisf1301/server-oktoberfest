@@ -189,7 +189,6 @@ app.post('/api/tickets', uploadFormData, (req, res) => {
       ticketType: req.body.ticketType,
       quantity: parseInt(req.body.quantity),
       status: 'pending',
-      createdAt: new Date().toISOString(),
     };
 
     tickets.push(ticket);
